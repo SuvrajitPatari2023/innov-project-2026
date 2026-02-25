@@ -13,7 +13,9 @@ class KMeans:
 
         random.seed(42)
         rand_idx = random.sample(range(0, X.shape[0]), self.n_clusters)
-        self.centroids = X.iloc[rand_idx, :].values
+        self.centroids = X[rand_idx]
+
+        print(self.centroids)
 
         for i in range(self.max_iter):    
 
@@ -22,10 +24,12 @@ class KMeans:
             old_centroids = self.centroids
 
             # move centroids
-            self.move_centroids = self.move_centroids(X, cluster_group)
+            self.centroids = self.move_centroids(X, cluster_group)
 
             # check and finish
-            if(old_centroids == self.centroids).all():
+            # if(old_centroids == self.centroids).all():
+            #     break
+            if np.allclose(old_centroids, self.centroids, atol=1e-4):
                 break
 
         print(cluster_group)
@@ -36,7 +40,7 @@ class KMeans:
         cluster_group = []
         distances = []
 
-        for row in X.values:
+        for row in X:
             for centroid in self.centroids:
                 distances.append(np.sqrt(np.dot(row - centroid, row - centroid)))
             # distances array will contain 4 elements only
@@ -47,12 +51,24 @@ class KMeans:
 
         return np.array(cluster_group)
     
+    # def move_centroids(self, X, cluster_group):
+    #     new_centroids = []
+
+    #     cluster_type = np.unique(cluster_group)
+
+    #     for type in cluster_type:
+    #         new_centroids.append(np.array(X)[cluster_group == type].mean(axis=0))
+
+    #     return np.array(new_centroids)
+
     def move_centroids(self, X, cluster_group):
         new_centroids = []
 
-        cluster_type = np.unique(cluster_group)
-
-        for type in cluster_type:
-            new_centroids.append(np.array(X)[cluster_group == type].mean(axis=0))
+        for k in range(self.n_clusters):
+            if np.any(cluster_group == k):
+                new_centroids.append(X[cluster_group == k].mean(axis=0))
+            else:
+                # reinitialize empty cluster randomly
+                new_centroids.append(X[np.random.randint(0, X.shape[0])])
 
         return np.array(new_centroids)

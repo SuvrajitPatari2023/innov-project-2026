@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv("student_clustering.csv")
 
-km = KMeans(n_clusters=6)
-y_means = km.fitPredict(df)
+km = KMeans()
 X = df.iloc[:, :].values
+y_means = km.fitPredict(X)
 
 # for i in range(km.n_clusters):
 # plt.show()
